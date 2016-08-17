@@ -1,0 +1,2 @@
+# Rasterizer
+For my "gymnasiearbete"
