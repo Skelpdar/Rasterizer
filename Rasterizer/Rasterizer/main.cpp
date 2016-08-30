@@ -39,24 +39,37 @@ int main(int, char**) {
 		Setpixel(surface, x, x, c, pitch, bpp);
 	}
 
-	SDL_UnlockSurface(surface);
-
-	SDL_UpdateWindowSurface(window);
-
 	Matrix4 mat4;
-	mat4.initialize_rotate_z(90);
+	mat4.initialize_scaling(1, 1, 1);
+
+	Matrix4 m4;
+	m4.initialize_translation(1, 2, 3);
+
+	Matrix4 newm4 = m4.mult(mat4);
 
 	Matrix mat;
 	mat.matrix.clear();
 	mat.matrix.push_back(1);
-	mat.matrix.push_back(2);
-	mat.matrix.push_back(3);
+	mat.matrix.push_back(1);
+	mat.matrix.push_back(10);
 	mat.matrix.push_back(1);
 
-	Matrix newmat = mat4.mult(mat);
+	Matrix newmat = newm4.mult(mat);
 	for (int i = 0; i < 4; i++) {
 		std::cout << newmat.matrix[i] << std::endl;
 	}
+
+	float x = newmat.matrix[0] / newmat.matrix[2] * 640 + 640 / 2;
+	float y = newmat.matrix[1] / newmat.matrix[2] * -480 + 480 / 2;
+
+	std::cout << x << " " << y << std::endl;
+	 /*
+	Setpixel(surface, x, y, c, pitch, bpp);
+	*/
+
+	SDL_UnlockSurface(surface);
+
+	SDL_UpdateWindowSurface(window);
 
 	
 	// TODO timings

@@ -19,7 +19,33 @@ Matrix Matrix4::mult(Matrix m) {
 	return out;
 }
 
-//Translating the initialization arrays to the matrix 
+// ?
+Matrix4 Matrix4::mult(Matrix4 m) {
+	Matrix4 out;
+
+	float a[16];
+
+	for (int i = 0; i < 16; i++) {
+		
+		int column = i % 4;
+		int row = (i - i % 4) / 4;
+
+		float x = 0;
+
+		for (int j = 0; j < 4; j++) {
+			std::cout << m.matrix[column][j] * matrix[j][row] << std::endl;
+			x += m.matrix[column][j] * matrix[j][row];
+		}
+		std::cout << i << ":" << x << std::endl;
+		a[i] = x;
+	}
+
+	out.array_to_matrix(a);
+
+	return out;
+}
+
+//Translating array to matrix form
 void Matrix4::array_to_matrix(float* a) {
 
 	for (int i = 0; i < 4; i++) {
