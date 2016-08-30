@@ -33,10 +33,8 @@ Matrix4 Matrix4::mult(Matrix4 m) {
 		float x = 0;
 
 		for (int j = 0; j < 4; j++) {
-			std::cout << m.matrix[column][j] * matrix[j][row] << std::endl;
 			x += m.matrix[column][j] * matrix[j][row];
 		}
-		std::cout << i << ":" << x << std::endl;
 		a[i] = x;
 	}
 
