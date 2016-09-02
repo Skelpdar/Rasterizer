@@ -5,9 +5,9 @@
 #include "Matrix.h"
 #include <vector>
 #include <iterator>
+#include "Model.h"
+#include <string>
 
-
-// Beware: Chaos
 int main(int, char**) {
 
 	//SDL Initialization
@@ -29,51 +29,117 @@ int main(int, char**) {
 	int pitch = surface->pitch;
 	int bpr = pitch / bpp;
 
+	std::vector<Model*> modellist;
+
+	//garbage
+	Vertex v1(1.0, 1.0, 1.0);
+	Vertex v2(1.0, -1.0, 1.0);
+	Vertex v3(-1.0, 1.0, 1.0);
+	Vertex v4(-1.0, -1.0, 1.0);
+
+	std::vector<Vertex*> face;
+	face.push_back(&v1);
+	face.push_back(&v2);
+	face.push_back(&v3);
+
+	Face f1(face);
+
+	face.clear();
+	face.push_back(&v2);
+	face.push_back(&v3);
+	face.push_back(&v4);
+
+	Face f2(face);
+
+
+	std::vector<Face*> faces;
+	faces.push_back(&f1);
+	faces.push_back(&f2);
+
+	Model model(faces);
+
+	model.position.matrix.clear();
+	model.position.matrix.push_back(0);
+	model.position.matrix.push_back(0);
+	model.position.matrix.push_back(5);
+
+	model.scale.matrix.clear();
+	model.scale.matrix.push_back(1);
+	model.scale.matrix.push_back(1);
+	model.scale.matrix.push_back(1);
+
+	model.rotation.matrix.clear();
+	model.rotation.matrix.push_back(0);
+	model.rotation.matrix.push_back(0);
+	model.rotation.matrix.push_back(0);
+
+	modellist.push_back(&model);
+
+	bool runProgram = true;
+
+	Color c(255, 255, 0, 0);
+
 	//Program loop TODO
 	//Rendering
-	SDL_LockSurface(surface);
+	while (runProgram){
+		
+		SDL_PumpEvents();
 
-	Color c(0, 0, 255, 0);
+		int starttime = SDL_GetTicks();
 
-	for (int x = 0; x < 100; x++) {
-		Setpixel(surface, x, x, c, pitch, bpp);
+		SDL_LockSurface(surface);
+
+		SDL_FillRect(surface, NULL, 0x000000);
+
+		//Iterate through every model
+		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
+			//Iterate through every face
+			Matrix4 translate;
+			translate.initialize_translation(model.position.matrix[0], model.position.matrix[1], model.position.matrix[2]);
+			Matrix4 scale;
+			scale.initialize_scaling(model.scale.matrix[0], model.scale.matrix[1], model.scale.matrix[2]);
+			Matrix4 rotatex;
+			rotatex.initialize_rotate_x(model.rotation.matrix[0]);
+			Matrix4 rotatey;
+			rotatey.initialize_rotate_y(model.rotation.matrix[1]);
+			Matrix4 rotatez;
+			rotatez.initialize_rotate_z(model.rotation.matrix[2]);
+
+			Matrix4 transmatrix = translate.mult(scale);
+			transmatrix = transmatrix.mult(rotatex);
+			transmatrix = transmatrix.mult(rotatey);
+			transmatrix = transmatrix.mult(rotatez);
+
+			for (std::vector<Face*>::iterator faceiter = (*modeliter)->faces.begin(); faceiter != (*modeliter)->faces.end(); faceiter++) {
+				//Iterate through every vertex
+				for (std::vector<Vertex*>::iterator vertiter = (*faceiter)->vertices.begin(); vertiter != (*faceiter)->vertices.end(); vertiter++) {
+					std::vector<float> pos = transmatrix.mult((*vertiter)->position).matrix;
+					Setpixel(surface, (pos[0] / pos[2] * 640 + 320), -(pos[1] / pos[2])* 480 + 240, c, pitch, bpp);
+
+				}
+			}
+		}
+
+
+
+		SDL_UnlockSurface(surface);
+
+		SDL_UpdateWindowSurface(window);
+
+		// TODO timings
+		float frameduration = SDL_GetTicks() - starttime;
+
+		SDL_Delay( 5 );
+
+		//model.rotation.matrix[0] += 1;
+		model.rotation.matrix[1] += 1;
+		//model.rotation.matrix[2] += 1;
+
+
+
+		//runProgram = false;
+		
 	}
-
-	Matrix4 mat4;
-	mat4.initialize_scaling(1, 1, 1);
-
-	Matrix4 m4;
-	m4.initialize_translation(1, 2, 3);
-
-	Matrix4 newm4 = m4.mult(mat4);
-
-	Matrix mat;
-	mat.matrix.clear();
-	mat.matrix.push_back(1);
-	mat.matrix.push_back(1);
-	mat.matrix.push_back(10);
-	mat.matrix.push_back(1);
-
-	Matrix newmat = newm4.mult(mat);
-	for (int i = 0; i < 4; i++) {
-		std::cout << newmat.matrix[i] << std::endl;
-	}
-
-	float x = newmat.matrix[0] / newmat.matrix[2] * 640 + 640 / 2;
-	float y = newmat.matrix[1] / newmat.matrix[2] * -480 + 480 / 2;
-
-	std::cout << x << " " << y << std::endl;
-	 /*
-	Setpixel(surface, x, y, c, pitch, bpp);
-	*/
-
-	SDL_UnlockSurface(surface);
-
-	SDL_UpdateWindowSurface(window);
-
-	
-	// TODO timings
-	SDL_Delay(2000);
 	
 	return 0;
 }
