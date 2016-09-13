@@ -7,6 +7,8 @@
 #include <iterator>
 #include "Model.h"
 #include <string>
+#include "Rasterizer.h"
+#include "Octant.h"
 
 int main(int, char**) {
 
@@ -32,6 +34,7 @@ int main(int, char**) {
 	std::vector<Model*> modellist;
 
 	//garbage
+
 	Vertex v1(1.0, 1.0, 1.0);
 	Vertex v2(1.0, -1.0, 1.0);
 	Vertex v3(-1.0, 1.0, 1.0);
@@ -91,7 +94,9 @@ int main(int, char**) {
 
 		SDL_FillRect(surface, NULL, 0x000000);
 
-		//Iterate through every model
+		DrawLine(surface, 10, 100, 10, 10, c, pitch, bpp);
+
+		//Iterate through every model, TODO redo all of this
 		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
 			//Iterate through every face
 			Matrix4 translate;
@@ -112,14 +117,19 @@ int main(int, char**) {
 
 			for (std::vector<Face*>::iterator faceiter = (*modeliter)->faces.begin(); faceiter != (*modeliter)->faces.end(); faceiter++) {
 				//Iterate through every vertex
+				std::vector<int> xvec;
+				std::vector<int> yvec;
 				for (std::vector<Vertex*>::iterator vertiter = (*faceiter)->vertices.begin(); vertiter != (*faceiter)->vertices.end(); vertiter++) {
 					std::vector<float> pos = transmatrix.mult((*vertiter)->position).matrix;
 					Setpixel(surface, (pos[0] / pos[2] * 640 + 320), -(pos[1] / pos[2])* 480 + 240, c, pitch, bpp);
-
+					xvec.push_back(pos[0] / pos[2] * 640 + 320);
+					yvec.push_back(-(pos[1] / pos[2]) * 480 + 240);
 				}
+				DrawLine(surface, xvec[0], yvec[0], xvec[1], yvec[1], c, pitch, bpp);
+				DrawLine(surface, xvec[1], yvec[1], xvec[2], yvec[2], c, pitch, bpp);
+				DrawLine(surface, xvec[2], yvec[2], xvec[0], yvec[0], c, pitch, bpp);
 			}
 		}
-
 
 
 		SDL_UnlockSurface(surface);
