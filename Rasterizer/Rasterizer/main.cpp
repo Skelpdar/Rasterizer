@@ -18,7 +18,7 @@ int main(int, char**) {
 		return 1;
 	}
 
-	SDL_Window *window = SDL_CreateWindow("Hello World!", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+	SDL_Window *window = SDL_CreateWindow("Rasterizer", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
 	if (window == nullptr) {
 		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
@@ -30,6 +30,12 @@ int main(int, char**) {
 	int bpp = surface->format->BytesPerPixel;
 	int pitch = surface->pitch;
 	int bpr = pitch / bpp;
+
+	//Initialization of the renderer
+	Rasterizer rasterizer;
+	rasterizer.setPitch(pitch);
+	rasterizer.setBpp(bpp);
+	rasterizer.setSurface(surface);
 
 	std::vector<Model*> modellist;
 
@@ -54,7 +60,6 @@ int main(int, char**) {
 
 	Face f2(face);
 
-
 	std::vector<Face*> faces;
 	faces.push_back(&f1);
 	faces.push_back(&f2);
@@ -78,6 +83,8 @@ int main(int, char**) {
 
 	modellist.push_back(&model);
 
+	// end of garbage
+
 	bool runProgram = true;
 
 	Color c(255, 255, 0, 0);
@@ -93,8 +100,6 @@ int main(int, char**) {
 		SDL_LockSurface(surface);
 
 		SDL_FillRect(surface, NULL, 0x000000);
-
-		DrawLine(surface, 10, 100, 10, 10, c, pitch, bpp);
 
 		//Iterate through every model, TODO redo all of this
 		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
@@ -125,9 +130,9 @@ int main(int, char**) {
 					xvec.push_back(pos[0] / pos[2] * 640 + 320);
 					yvec.push_back(-(pos[1] / pos[2]) * 480 + 240);
 				}
-				DrawLine(surface, xvec[0], yvec[0], xvec[1], yvec[1], c, pitch, bpp);
-				DrawLine(surface, xvec[1], yvec[1], xvec[2], yvec[2], c, pitch, bpp);
-				DrawLine(surface, xvec[2], yvec[2], xvec[0], yvec[0], c, pitch, bpp);
+				rasterizer.DrawLine(xvec[0], yvec[0], xvec[1], yvec[1], c);
+				rasterizer.DrawLine(xvec[1], yvec[1], xvec[2], yvec[2], c);
+				rasterizer.DrawLine(xvec[2], yvec[2], xvec[0], yvec[0], c);
 			}
 		}
 
@@ -143,9 +148,7 @@ int main(int, char**) {
 
 		//model.rotation.matrix[0] += 1;
 		model.rotation.matrix[1] += 1;
-		//model.rotation.matrix[2] += 1;
-
-
+		model.rotation.matrix[2] += 1;
 
 		//runProgram = false;
 		

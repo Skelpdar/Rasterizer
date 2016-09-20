@@ -1,7 +1,9 @@
 #include "Rasterizer.h"
 #include "Octant.h"
 
-void DrawLine(SDL_Surface* surf, int x1, int y1, int x2, int y2, Color col, int pitch, int bpp) {
+
+
+void Rasterizer::DrawLine(int x1, int y1, int x2, int y2, Color col) {
 	int octant = DetermineOctant(x1, y1, x2, y2);
 
 	float* startpos = ToOctantZero(octant, x1, y1);
@@ -22,7 +24,7 @@ void DrawLine(SDL_Surface* surf, int x1, int y1, int x2, int y2, Color col, int 
 
 	int xpositive = 1;
 
-	for (int i = x1; i < x2 - 1; i++) {
+	for (int i = x1; i < x2 ; i++) {
 		float* pos = FromOctantZero(octant, i, y);
 		Setpixel(surf, pos[0], pos[1], col, pitch, bpp);
 
@@ -34,4 +36,8 @@ void DrawLine(SDL_Surface* surf, int x1, int y1, int x2, int y2, Color col, int 
 		}
 
 	}
+}
+
+void Rasterizer::DrawTriangle(SDL_Surface* surf, Face f) {
+
 }
