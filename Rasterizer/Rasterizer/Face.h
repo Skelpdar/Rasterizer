@@ -8,7 +8,11 @@ class Face {
 public:
 	std::vector<Vertex*> vertices;
 	
+	void addVertex(Vertex* v);
+
+	Face() {};
 	Face(std::vector<Vertex*> a);
+	
 };
 
 #endif
