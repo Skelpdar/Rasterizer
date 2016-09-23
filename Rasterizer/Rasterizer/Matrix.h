@@ -13,6 +13,7 @@ class Matrix {
 public:
 	std::vector<float> matrix;
 	Matrix();
+	Matrix(float x, float y, float z);
 };
 
 // The 4x4 transformation matrices

@@ -6,6 +6,13 @@ Matrix::Matrix() {
 	}
 }
 
+Matrix::Matrix(float x, float y, float z) {
+	matrix.push_back(x);
+	matrix.push_back(y);
+	matrix.push_back(z);
+	matrix.push_back(0);
+}
+
 Matrix Matrix4::mult(Matrix m) {
 	Matrix out;
 	
@@ -56,6 +63,8 @@ void Matrix4::array_to_matrix(float* a) {
 	}
 }
 
+
+//Improve with vector initialization lists, which are available in c++11
 void Matrix4::initialize_identity() {
 	
 	float a[16] = {
