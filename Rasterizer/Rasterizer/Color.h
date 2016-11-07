@@ -4,5 +4,6 @@ class Color {
 public:
 	int R, G, B, A;
 	Color(int r, int g, int b, int a);
+	Color();
 };
 #endif

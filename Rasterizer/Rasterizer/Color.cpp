@@ -7,3 +7,10 @@ Color::Color(int r, int g, int b, int a) {
 	B = b;
 	A = a;
 }
+
+Color::Color() {
+	R = 255;
+	G = 255;
+	B = 255;
+	A = 0;
+}

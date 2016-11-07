@@ -48,17 +48,19 @@ int main(int, char**) {
 	Vertex v4(-1.0, -1.0, 1.0);
 
 	std::vector<Vertex*> face;
-	face.push_back(&v1);
-	face.push_back(&v2);
 	face.push_back(&v3);
-
+	face.push_back(&v2);
+	face.push_back(&v1);
 
 	Face f1(face);
 
 	face.clear();
-	face.push_back(&v2);
 	face.push_back(&v3);
 	face.push_back(&v4);
+	face.push_back(&v2);
+
+	Color red(255, 0, 0, 0);
+	f1.setColor(red);
 
 	Face f2(face);
 
@@ -95,6 +97,8 @@ int main(int, char**) {
 
 	Color c(255, 255, 0, 0);
 
+	float frameduration = 0;
+
 	//Program loop TODO
 	//Rendering
 	while (runProgram){
@@ -108,7 +112,6 @@ int main(int, char**) {
 		SDL_FillRect(surface, NULL, 0x000000);
 
 		//Event loop
-
 		SDL_Event e;
 		while (SDL_PollEvent(&e)) {
 			if (e.key.keysym.sym == SDLK_s) {
@@ -174,14 +177,16 @@ int main(int, char**) {
 				//Iterate through every vertex
 				for (std::vector<Vertex*>::iterator vertiter = (*faceiter)->vertices.begin(); vertiter != (*faceiter)->vertices.end(); vertiter++) {
 					std::vector<float> pos = transmatrix.mult((*vertiter)->position).matrix;
-					Setpixel(surface, (pos[0] / pos[2] * 640 + 320), -(pos[1] / pos[2])* 480 + 240, c, pitch, bpp);
-					xvec.push_back(pos[0] / pos[2] * 640 + 320);
-					yvec.push_back(-(pos[1] / pos[2]) * 480 + 240);
+					//Setpixel(surface, (pos[0] / pos[2] * 500 + 320), -(pos[1] / pos[2])* 500 + 240, c, pitch, bpp);
+					xvec.push_back(pos[0] / pos[2] * 500 + 320);
+					yvec.push_back(-(pos[1] / pos[2]) * 500 + 240);
 				}
 
-				rasterizer.DrawLine(xvec[0], yvec[0], xvec[1], yvec[1], c);
-				rasterizer.DrawLine(xvec[1], yvec[1], xvec[2], yvec[2], c);
-				rasterizer.DrawLine(xvec[2], yvec[2], xvec[0], yvec[0], c);
+				//rasterizer.DrawLine(xvec[0], yvec[0], xvec[1], yvec[1], c);
+				//rasterizer.DrawLine(xvec[1], yvec[1], xvec[2], yvec[2], c);
+				//rasterizer.DrawLine(xvec[2], yvec[2], xvec[0], yvec[0], c);
+
+				rasterizer.DrawTriangle(xvec[0], yvec[0], xvec[1], yvec[1], xvec[2], yvec[2], (*faceiter)->color);
 			}
 		}
 
@@ -191,13 +196,13 @@ int main(int, char**) {
 		SDL_UpdateWindowSurface(window);
 
 		// TODO timings
-		float frameduration = SDL_GetTicks() - starttime;
+		frameduration = SDL_GetTicks() - starttime;
 
 		SDL_Delay( 5 );
 
 		//model.rotation.matrix[0] += 1;
 		//model.rotation.matrix[1] += 1;
-		//model.rotation.matrix[2] += 1;
+		model.rotation.matrix[2] += 1;
 
 		//runProgram = false;
 		

@@ -5,6 +5,7 @@
 #include "Color.h"
 #include "Setpixel.h"
 #include "Face.h"
+#include <algorithm>
 
 class Rasterizer {
 	int pitch;
@@ -23,7 +24,8 @@ public:
 		int y2, Color col);
 
 	//Draw triangles
-	void DrawTriangle(SDL_Surface* surf, Face f);
+	bool signedArea(int ax, int ay, int bx, int by, int cx, int cy);
+	void DrawTriangle( int x1, int y1, int x2, int y2, int x3, int y3, Color col);
 
 };
 
