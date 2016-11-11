@@ -85,6 +85,8 @@ int main(int, char**) {
 	model.rotation.matrix.push_back(0);
 	model.rotation.matrix.push_back(0);
 
+	model.loadFromFile("model.txt");
+
 	modellist.push_back(&model);
 
 	Camera camera;
