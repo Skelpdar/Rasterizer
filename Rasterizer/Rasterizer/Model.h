@@ -20,6 +20,7 @@ public:
 	void loadFromFile(std::string filename);
 
 	Model(std::vector<Face*> a);
+	Model();
 };
 
 #endif
