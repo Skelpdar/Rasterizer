@@ -1,7 +1,9 @@
 #include "Rasterizer.h"
 #include "Octant.h"
 
-
+/**
+Line drawing with bresenhams line drawing algorithm between two points (x1,y1) and (x2,y2).
+*/
 void Rasterizer::DrawLine(int x1, int y1, int x2, int y2, Color col) {
 	int octant = DetermineOctant(x1, y1, x2, y2);
 
@@ -36,17 +38,16 @@ void Rasterizer::DrawLine(int x1, int y1, int x2, int y2, Color col) {
 	}
 }
 
-bool Rasterizer::signedArea(int ax, int ay, int bx, int by, int cx, int cy) {
-	bool b = false;
-	if ((bx - ax)*(cy - ay) - (by - ay)*(cx - ax) >= 0) {
-		b = true;
-		return b;
-	}
-	else {
-		return b;
-	}
+/**
+Returns twice the area of the triangle with points (ax,ay), (ba,by) and (px,py).
+*/
+int Rasterizer::signedArea(int ax, int ay, int bx, int by, int px, int py) {
+	return (bx - ax)*(py - ay) - (by - ay)*(px - ax);
 }
 
+/**
+Draw a triangle between three points (x1,y1), (x2,y2) and (x3,y3) in screen coordinates.
+*/
 void Rasterizer::DrawTriangle( int x1, int y1, int x2, int y2, int x3, int y3, Color col) {
 	int minX = std::min(x1, x2);
 	minX = std::min(minX, x3);
@@ -64,16 +65,39 @@ void Rasterizer::DrawTriangle( int x1, int y1, int x2, int y2, int x3, int y3, C
 	maxY = std::max(maxY, y3);
 	maxY = std::min(surf->h - 1, maxY);
 
-	for (int y = minY; y <= maxY; y++) {
-		for (int x = minX; x <= maxX; x++) {
-			bool w0 = signedArea(x2, y2, x1, y1, x, y);
-			bool w1 = signedArea(x1, y1, x3, y3, x, y);
-			bool w2 = signedArea(x3, y3, x2, y2, x, y);
+	int a01 = y1 - y2;
+	int a12 = y2 - y3;
+	int a20 = y3 - y1;
 
-			if (w0 && w1 && w2) {
+	int b01 = x2 - x1;
+	int b12 = x3 - x2;
+	int b20 = x1 - x3;
+
+	int w0_row = signedArea(x2, y2, x3, y3, minX, minY);
+	int w1_row = signedArea(x3, y3, x1, y1, minX, minY);
+	int w2_row = signedArea(x1, y1, x2, y2, minX, minY);
+
+
+	for (int y = minY; y <= maxY; y++) {
+
+		int w0 = w0_row;
+		int w1 = w1_row;
+		int w2 = w2_row;
+
+		for (int x = minX; x <= maxX; x++) {
+
+			if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
 				Setpixel(surf, x, y, col, pitch, bpp);
 			}
+
+			w0 += a12;
+			w1 += a20;
+			w2 += a01;
 		}
+
+		w0_row += b12;
+		w1_row += b20;
+		w2_row += b01;
 	}
 
 }
