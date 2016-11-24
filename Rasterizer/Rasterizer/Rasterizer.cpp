@@ -2,6 +2,24 @@
 #include "Octant.h"
 
 /**
+Sets the color of a pixel (x,y) to color col.
+
+pitch is the number bytes per row of pixels, from surf-pitch
+bpp is the number of byters per pixel, from surf->format->BytesPerPixel
+*/
+void Rasterizer::setpixel( int x, int y,
+	Color col, int pitch, int bpp) {
+
+	if (x >= 0 && x < surf->w && y >= 0 && y < surf->h) {
+		Uint8* p = (Uint8*)surf->pixels + y*pitch + x*bpp;
+		*(p) = col.B;
+		*(p + 1) = col.G;
+		*(p + 2) = col.R;
+	}
+}
+
+
+/**
 Line drawing with bresenhams line drawing algorithm between two points (x1,y1) and (x2,y2).
 */
 void Rasterizer::DrawLine(int x1, int y1, int x2, int y2, Color col) {
@@ -27,7 +45,7 @@ void Rasterizer::DrawLine(int x1, int y1, int x2, int y2, Color col) {
 
 	for (int i = x1; i < x2 ; i++) {
 		float* pos = FromOctantZero(octant, i, y);
-		Setpixel(surf, pos[0], pos[1], col, pitch, bpp);
+		setpixel(pos[0], pos[1], col, pitch, bpp);
 
 		error += k;
 
@@ -87,7 +105,7 @@ void Rasterizer::DrawTriangle( int x1, int y1, int x2, int y2, int x3, int y3, C
 		for (int x = minX; x <= maxX; x++) {
 
 			if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
-				Setpixel(surf, x, y, col, pitch, bpp);
+				setpixel(x, y, col, pitch, bpp);
 			}
 
 			w0 += a12;

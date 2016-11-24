@@ -1,7 +1,6 @@
 #include <iostream>
 #include <SDL.h>
 #include "Color.h"
-#include "Setpixel.h"
 #include "Matrix.h"
 #include <vector>
 #include <iterator>
@@ -42,7 +41,7 @@ int main(int, char**) {
 	//Scene initialization
 	Model model;
 	model.loadFromFile("model.txt");
-	model.position = Matrix(0, 0, 20);
+	model.position = Matrix(0, 0, 5);
 	model.scale = Matrix(1, 1, 1);
 
 	Model model2;
@@ -53,7 +52,7 @@ int main(int, char**) {
 
 	std::vector<Model*> modellist;
 	modellist.push_back(&model);
-	modellist.push_back(&model2);
+	//modellist.push_back(&model2);
 
 	Camera camera;
 	camera.position = Matrix(0, 0, 0);
@@ -65,16 +64,13 @@ int main(int, char**) {
 
 	float frameduration = 0;
 
-	//Rendering
 	while (runProgram){
 		
 		SDL_PumpEvents();
 
 		int starttime = SDL_GetTicks();
 
-		SDL_LockSurface(surface);
-
-		SDL_FillRect(surface, NULL, 0x000000);
+		
 
 		//Event loop
 		SDL_Event e;
@@ -98,6 +94,22 @@ int main(int, char**) {
 				camera.rotation.matrix[1] += 1;
 			}
 		}
+
+		SDL_LockSurface(surface);
+
+		/*
+		RENDER LOOP
+
+		Begin with clearing the pixelbuffer
+
+		Then render the scene by iterating, trough every model, and rasterize all of their faces.
+
+		Lastly we update the screen
+
+		*/
+		
+		//Clear the pixelbuffer by filling it with black
+		SDL_FillRect(surface, NULL, 0x000000);
 
 		//Iterate through every model, TODO redo all of this
 		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
@@ -163,13 +175,11 @@ int main(int, char**) {
 		// TODO timings
 		frameduration = SDL_GetTicks() - starttime;
 
-		SDL_Delay( 5 );
+		SDL_Delay(5);
 
-		//model.rotation.matrix[0] += 1;
+		model.rotation.matrix[0] += 1;
 		model.rotation.matrix[1] += 1;
-		//model.rotation.matrix[2] += 1;
-
-		//runProgram = false;
+		model.rotation.matrix[2] += 1;
 		
 	}
 	
