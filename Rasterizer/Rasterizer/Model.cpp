@@ -21,8 +21,12 @@ std::vector<std::string> Model::split(std::string str) {
 	return words;
 }
 
-//Currently does not support texture mapping, defining normals for faces
-//nor materials, polygons have to be triangulated
+/**
+Loads a model from an .obj file.
+
+Currently does not support texture mapping, defining normals for faces nor materials.
+All polygons have to be triangulated.
+*/
 void Model::loadFromFile(std::string filename) {
 	faces.clear();
 
@@ -59,9 +63,9 @@ void Model::loadFromFile(std::string filename) {
 			int vert2 = std::stoi(spl[2]);
 			int vert3 = std::stoi(spl[3]);
 
-			face->addVertex(vertices[vert3 - 1]);
-			face->addVertex(vertices[vert2 - 1]);
 			face->addVertex(vertices[vert1 - 1]);
+			face->addVertex(vertices[vert2 - 1]);
+			face->addVertex(vertices[vert3 - 1]);
 
 			faces.push_back(face);
 

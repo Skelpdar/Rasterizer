@@ -1,9 +1,8 @@
 #include "Matrix.h"
 
 Matrix::Matrix() {
-	for (int i = 0; i < 4; i++) {
-		matrix.push_back(0.0);
-	}
+	std::vector<float> m{ 0.0,0.0,0.0,0.0 };
+	matrix = m;
 }
 
 Matrix::Matrix(float x, float y, float z) {
@@ -13,6 +12,9 @@ Matrix::Matrix(float x, float y, float z) {
 	matrix.push_back(0);
 }
 
+/**
+Multiplies itself with a 4x1 matrix on the right side
+*/
 Matrix Matrix4::mult(Matrix m) {
 	Matrix out;
 	
@@ -26,7 +28,9 @@ Matrix Matrix4::mult(Matrix m) {
 	return out;
 }
 
-// ?
+/**
+Multiplies itself with another 4x4 matrix on the right side
+*/
 Matrix4 Matrix4::mult(Matrix4 m) {
 	Matrix4 out;
 
@@ -50,7 +54,9 @@ Matrix4 Matrix4::mult(Matrix4 m) {
 	return out;
 }
 
-//Translating array to matrix form
+/**
+Translating array to matrix form
+*/
 void Matrix4::array_to_matrix(float* a) {
 
 	for (int i = 0; i < 4; i++) {
@@ -65,6 +71,9 @@ void Matrix4::array_to_matrix(float* a) {
 
 
 //Improve with vector initialization lists, which are available in c++11
+/**
+Initialize the identity matrix
+*/
 void Matrix4::initialize_identity() {
 	
 	float a[16] = {
@@ -77,6 +86,9 @@ void Matrix4::initialize_identity() {
 	array_to_matrix(a);
 }
 
+/**
+Initialize a translation matrix
+*/
 void Matrix4::initialize_translation(float x, float y, float z) {
 	
 	float a[16] = {
@@ -89,6 +101,9 @@ void Matrix4::initialize_translation(float x, float y, float z) {
 	array_to_matrix(a);
 }
 
+/**
+Initialize a sclaing matrix
+*/
 void Matrix4::initialize_scaling(float x, float y, float z) {
 
 	float a[16] = {
@@ -101,6 +116,9 @@ void Matrix4::initialize_scaling(float x, float y, float z) {
 	array_to_matrix(a);
 }
 
+/**
+Initialize a rotation matrix arond the x-axis by t degrees.
+*/
 void Matrix4::initialize_rotate_x(float t) {
 	t = t * PI / 180;
 
@@ -114,6 +132,9 @@ void Matrix4::initialize_rotate_x(float t) {
 	array_to_matrix(a);
 }
 
+/**
+Initialize a rotation matrix arond the y-axis by t degrees.
+*/
 void Matrix4::initialize_rotate_y(float t) {
 	t = t * PI / 180;
 
@@ -127,6 +148,9 @@ void Matrix4::initialize_rotate_y(float t) {
 	array_to_matrix(a);
 }
 
+/**
+Initialize a rotation matrix arond the z-axis by t degrees.
+*/
 void Matrix4::initialize_rotate_z(float t) {
 	t = t * PI / 180;
 

@@ -9,8 +9,13 @@
 #include "Rasterizer.h"
 #include "Octant.h"
 #include "Camera.h"
+#include <cmath>
 
 int main(int, char**) {
+
+	int width = 640;
+	int height = 480;
+	int farplane = 10;
 
 	//SDL Initialization
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) {
@@ -18,7 +23,7 @@ int main(int, char**) {
 		return 1;
 	}
 
-	SDL_Window *window = SDL_CreateWindow("Rasterizer", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+	SDL_Window *window = SDL_CreateWindow("Rasterizer", 100, 100, width, height, SDL_WINDOW_SHOWN);
 	if (window == nullptr) {
 		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		SDL_Quit();
@@ -32,6 +37,16 @@ int main(int, char**) {
 	int pitch = surface->pitch;
 	int bpr = pitch / bpp;
 
+	//Empty z-buffer
+	std::vector<std::vector<float>> emptybuffer;
+	for (int i = 0; i < width; i++) {
+		std::vector<float> column;
+		for (int j = 0; j < height; j++) {
+			column.push_back(farplane);
+		}
+		emptybuffer.push_back(column);
+	}
+
 	//Initialization of the renderer
 	Rasterizer rasterizer;
 	rasterizer.setPitch(pitch);
@@ -41,18 +56,12 @@ int main(int, char**) {
 	//Scene initialization
 	Model model;
 	model.loadFromFile("model.txt");
-	model.position = Matrix(0, 0, 5);
+	model.position = Matrix(0, 0, 4);
 	model.scale = Matrix(1, 1, 1);
-
-	Model model2;
-	model2.loadFromFile("model.txt");
-	Matrix position(5, 0, 20);
-	model2.position = position;
-	model2.scale = Matrix(1, 1, 1);
+	model.rotation = Matrix(0, 45, 0);
 
 	std::vector<Model*> modellist;
 	modellist.push_back(&model);
-	//modellist.push_back(&model2);
 
 	Camera camera;
 	camera.position = Matrix(0, 0, 0);
@@ -69,8 +78,6 @@ int main(int, char**) {
 		SDL_PumpEvents();
 
 		int starttime = SDL_GetTicks();
-
-		
 
 		//Event loop
 		SDL_Event e;
@@ -100,7 +107,7 @@ int main(int, char**) {
 		/*
 		RENDER LOOP
 
-		Begin with clearing the pixelbuffer
+		Begin with clearing the pixelbuffer and clearing the z-buffer
 
 		Then render the scene by iterating, trough every model, and rasterize all of their faces.
 
@@ -110,6 +117,9 @@ int main(int, char**) {
 		
 		//Clear the pixelbuffer by filling it with black
 		SDL_FillRect(surface, NULL, 0x000000);
+
+		//Reset the z-buffer
+		rasterizer.setZBuffer(emptybuffer);
 
 		//Iterate through every model, TODO redo all of this
 		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
@@ -151,19 +161,26 @@ int main(int, char**) {
 				std::vector<int> xvec;
 				std::vector<int> yvec;
 
+				std::vector<float> depth;
+
 				//Iterate through every vertex
 				for (std::vector<Vertex*>::iterator vertiter = (*faceiter)->vertices.begin(); vertiter != (*faceiter)->vertices.end(); vertiter++) {
 					std::vector<float> pos = transmatrix.mult((*vertiter)->position).matrix;
-					//Setpixel(surface, (pos[0] / pos[2] * 500 + 320), -(pos[1] / pos[2])* 500 + 240, c, pitch, bpp);
-					xvec.push_back(pos[0] / pos[2] * 500 + 320);
-					yvec.push_back(-(pos[1] / pos[2]) * 500 + 240);
+					//Draws vertices
+					//rasterizer.setpixel((pos[0] / pos[2] * 500 + 320), -(pos[1] / pos[2])* 500 + 240, c, pitch, bpp);
+					//TODO: Proper projection
+					xvec.push_back(static_cast<int>(pos[0] / pos[2] * 500 + width/2));
+					yvec.push_back(static_cast<int>(-(pos[1] / pos[2]) * 500 + height/2));
+
+					depth.push_back( sqrt(pow(pos[0], 2) + pow(pos[1],2)  + pow(pos[2],2) ));
+
 				}
 
 				//rasterizer.DrawLine(xvec[0], yvec[0], xvec[1], yvec[1], c);
 				//rasterizer.DrawLine(xvec[1], yvec[1], xvec[2], yvec[2], c);
 				//rasterizer.DrawLine(xvec[2], yvec[2], xvec[0], yvec[0], c);
 
-				rasterizer.DrawTriangle(xvec[0], yvec[0], xvec[1], yvec[1], xvec[2], yvec[2], (*faceiter)->color);
+				rasterizer.DrawTriangle(xvec, yvec, (*faceiter)->color, depth);
 			}
 		}
 
@@ -178,7 +195,7 @@ int main(int, char**) {
 		SDL_Delay(5);
 
 		model.rotation.matrix[0] += 1;
-		model.rotation.matrix[1] += 1;
+		model.rotation.matrix[1] += 5;
 		model.rotation.matrix[2] += 1;
 		
 	}

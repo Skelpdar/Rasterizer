@@ -5,6 +5,7 @@
 #include <iterator>
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 #define PI 3.14159265
 
@@ -18,6 +19,8 @@ public:
 
 // The 4x4 transformation matrices
 class Matrix4 {
+	void array_to_matrix(float* a);
+
 public:
 	//Outer vector is columns, inner is the rows
 	std::vector< std::vector<float> > matrix;
@@ -25,11 +28,10 @@ public:
 	Matrix mult(Matrix m);
 	Matrix4 mult(Matrix4 m);
 
-	void array_to_matrix(float* a);
-
 	void initialize_identity();
 	void initialize_translation(float x, float y, float z);
 	void initialize_scaling(float x, float y, float z);
+
 	// Rotation where t is given in angles
 	void initialize_rotate_x(float t);
 	void initialize_rotate_y(float t);
