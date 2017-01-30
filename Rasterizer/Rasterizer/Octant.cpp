@@ -1,6 +1,8 @@
 #include "Octant.h"
 
-//TODO Make this less ugly
+/**
+Determine in which direction two points (x1,y1) and (x2,y2) are directed in.
+*/
 int DetermineOctant(float x1, float y1, float x2, float y2) {
 	int octant = 0;
 
@@ -47,6 +49,9 @@ int DetermineOctant(float x1, float y1, float x2, float y2) {
 	return octant;
 }
 
+/**
+Transforms a point into octant zero.
+*/
 float* ToOctantZero(int octant, float x, float y) {
 	float out[2];
 
@@ -97,6 +102,9 @@ float* ToOctantZero(int octant, float x, float y) {
 	return out;
 }
 
+/**
+Transforms a point back from octant zero.
+*/
 float* FromOctantZero(int octant, float x, float y) {
 
 	float out[2];

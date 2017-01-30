@@ -1,6 +1,9 @@
 #include "Color.h"
 
-//Parameters: Red, Green, Blue, Alpha
+/**
+Arguments: Red, Green, Blue, Alpha. 
+Values between 0 - 255
+*/
 Color::Color(int r, int g, int b, int a) {
 	R = r;
 	G = g;

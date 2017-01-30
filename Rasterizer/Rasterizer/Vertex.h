@@ -3,6 +3,9 @@
 
 #include "Matrix.h"
 
+/**
+A vertex only holds its spatial coordinates
+*/
 class Vertex {
 public:
 	Matrix position;
