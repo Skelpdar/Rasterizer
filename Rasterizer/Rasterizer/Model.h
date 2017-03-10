@@ -7,13 +7,14 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include "Eigen/Core"
 
 class Model {
 	std::vector<std::string> split(std::string);
 public:
-	Matrix position;
-	Matrix scale;
-	Matrix rotation;
+	Eigen::Vector4f position;
+	Eigen::Vector4f scale;
+	Eigen::Vector4f rotation;
 
 	std::vector<Face*> faces;
 

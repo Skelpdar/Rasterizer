@@ -10,6 +10,7 @@
 #include "Octant.h"
 #include "Camera.h"
 #include <cmath>
+#include "Eigen/Core"
 
 int main(int, char**) {
 
@@ -56,16 +57,16 @@ int main(int, char**) {
 	//Scene initialization
 	Model model;
 	model.loadFromFile("model.txt");
-	model.position = Matrix(0, 0, 4);
-	model.scale = Matrix(1, 1, 1);
-	model.rotation = Matrix(0, 45, 0);
+	model.position = Eigen::Vector4f(0,0,0,1);
+	model.scale = Eigen::Vector4f(1, 1, 1, 1);
+	model.rotation = Eigen::Vector4f(0, 0, 0, 1);
 
 	std::vector<Model*> modellist;
 	modellist.push_back(&model);
 
 	Camera camera;
-	camera.position = Matrix(0, 0, 0);
-	camera.rotation = Matrix(0, 0, 0);
+	camera.position = Eigen::Vector4f(0, 0, -5, 1);
+	camera.rotation = Eigen::Vector4f(0, 0, 0, 1);
 
 	bool runProgram = true;
 
@@ -73,34 +74,14 @@ int main(int, char**) {
 
 	float frameduration = 0;
 
+	int frame = 0;
+	float framelength = 0;
+	
 	while (runProgram){
 		
 		SDL_PumpEvents();
 
 		int starttime = SDL_GetTicks();
-
-		//Event loop
-		SDL_Event e;
-		while (SDL_PollEvent(&e)) {
-			if (e.key.keysym.sym == SDLK_s) {
-				camera.position.matrix[2] -= 0.1;
-			}
-			if (e.key.keysym.sym == SDLK_w) {
-				camera.position.matrix[2] += 0.1;
-			}
-			if (e.key.keysym.sym == SDLK_a) {
-				camera.position.matrix[0] -= 0.1;
-			}
-			if (e.key.keysym.sym == SDLK_d) {
-				camera.position.matrix[0] += 0.1;
-			}
-			if (e.key.keysym.sym == SDLK_q) {
-				camera.rotation.matrix[1] -= 1;
-			}
-			if (e.key.keysym.sym == SDLK_e) {
-				camera.rotation.matrix[1] += 1;
-			}
-		}
 
 		SDL_LockSurface(surface);
 
@@ -124,36 +105,16 @@ int main(int, char**) {
 		//Iterate through every model, TODO redo all of this
 		for (std::vector<Model*>::iterator modeliter = modellist.begin(); modeliter != modellist.end(); modeliter++) {
 			
+			Eigen::Matrix4f camy = camera.getYRotationMatrix();
+			Eigen::Matrix4f camx = camera.getXRotationMatrix();
+			Eigen::Matrix4f camtrans = camera.getTranslationMatrix();
+			Eigen::Matrix4f trans = translation((*modeliter)->position(0, 0), (*modeliter)->position(1, 0), (*modeliter)->position(2, 0));
+			Eigen::Matrix4f scl = scale((*modeliter)->scale(0, 0), (*modeliter)->scale(1, 0), (*modeliter)->scale(2, 0));
+			Eigen::Matrix4f rotx = rotatex((*modeliter)->rotation(0, 0));
+			Eigen::Matrix4f roty = rotatey((*modeliter)->rotation(1, 0));
+			Eigen::Matrix4f rotz = rotatez((*modeliter)->rotation(2, 0));
 
-			//Setting up the individual matrices
-			Matrix4 translate;
-			translate.initialize_translation((*modeliter)->position.matrix[0], model.position.matrix[1], model.position.matrix[2]);
-			Matrix4 scale;
-			scale.initialize_scaling((*modeliter)->scale.matrix[0], model.scale.matrix[1], model.scale.matrix[2]);
-			Matrix4 rotatex;
-			rotatex.initialize_rotate_x((*modeliter)->rotation.matrix[0]);
-			Matrix4 rotatey;
-			rotatey.initialize_rotate_y((*modeliter)->rotation.matrix[1]);
-			Matrix4 rotatez;
-			rotatez.initialize_rotate_z((*modeliter)->rotation.matrix[2]);
-			Matrix4 cameratrans;
-			cameratrans = camera.getTranslationMatrix();
-			Matrix4 cameraxrot;
-			cameraxrot = camera.getXRotationMatrix();
-			Matrix4 camerayrot;
-			camerayrot = camera.getYRotationMatrix();
-			Matrix4 camerazrot;
-			camerazrot = camera.getZRotationMatrix();
-
-			//Setting up the transformation matrix
-			Matrix4 transmatrix = cameraxrot.mult(camerayrot);
-			transmatrix = transmatrix.mult(camerazrot);
-			transmatrix = transmatrix.mult(cameratrans);
-			transmatrix = transmatrix.mult(translate);
-			transmatrix = transmatrix.mult(scale);
-			transmatrix = transmatrix.mult(rotatex);
-			transmatrix = transmatrix.mult(rotatey);
-			transmatrix = transmatrix.mult(rotatez);
+			Eigen::Matrix4f transmatrix = camy * camx * camtrans * trans * scl * rotx * roty * rotz;
 
 			//Iterate through every face
 			for (std::vector<Face*>::iterator faceiter = (*modeliter)->faces.begin(); faceiter != (*modeliter)->faces.end(); faceiter++) {
@@ -165,25 +126,29 @@ int main(int, char**) {
 
 				//Iterate through every vertex
 				for (std::vector<Vertex*>::iterator vertiter = (*faceiter)->vertices.begin(); vertiter != (*faceiter)->vertices.end(); vertiter++) {
-					std::vector<float> pos = transmatrix.mult((*vertiter)->position).matrix;
+
+					Eigen::Vector4f pos = transmatrix * (*vertiter)->position;
+
 					//Draws vertices
 					//rasterizer.setpixel((pos[0] / pos[2] * 500 + 320), -(pos[1] / pos[2])* 500 + 240, c, pitch, bpp);
 					//TODO: Proper projection
-					xvec.push_back(static_cast<int>(pos[0] / pos[2] * 500 + width/2));
-					yvec.push_back(static_cast<int>(-(pos[1] / pos[2]) * 500 + height/2));
+					xvec.push_back(static_cast<int>(pos(0,0) / pos(2,0) * 500 + width/2));
+					yvec.push_back(static_cast<int>(-(pos(1,0) / pos(2,0)) * 500 + height/2));
 
-					depth.push_back( sqrt(pow(pos[0], 2) + pow(pos[1],2)  + pow(pos[2],2) ));
+					depth.push_back( sqrt(pow(pos(0,0), 2) + pow(pos(1,0),2)  + pow(pos(2,0),2) ));
 
 				}
 
+				//Draws lines
 				//rasterizer.DrawLine(xvec[0], yvec[0], xvec[1], yvec[1], c);
 				//rasterizer.DrawLine(xvec[1], yvec[1], xvec[2], yvec[2], c);
 				//rasterizer.DrawLine(xvec[2], yvec[2], xvec[0], yvec[0], c);
 
 				rasterizer.DrawTriangle(xvec, yvec, (*faceiter)->color, depth);
-			}
-		}
 
+			}
+
+		}
 
 		SDL_UnlockSurface(surface);
 
@@ -192,13 +157,22 @@ int main(int, char**) {
 		// TODO timings
 		frameduration = SDL_GetTicks() - starttime;
 
-		SDL_Delay(5);
+		frame++;
+		framelength += frameduration;
+		if (frame >= 50) {
+			std::cout << 1000 / (framelength / 50) << std::endl;
+			frame = 0;
+			framelength = 0;
+		}
 
-		model.rotation.matrix[0] += 1;
-		model.rotation.matrix[1] += 5;
-		model.rotation.matrix[2] += 1;
+		//SDL_Delay(0);
+
+		//model.rotation(0, 0) += 1;
+		//model.rotation(1, 0) += 1;
+		model.rotation(2, 0) += 1;
 		
 	}
+
 	
 	return 0;
 }

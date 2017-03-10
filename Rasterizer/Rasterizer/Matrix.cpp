@@ -1,5 +1,7 @@
 #include "Matrix.h"
 
+
+
 Matrix::Matrix() {
 	std::vector<float> m{ 0.0,0.0,0.0,0.0 };
 	matrix = m;
@@ -162,4 +164,57 @@ void Matrix4::initialize_rotate_z(float t) {
 	};
 
 	array_to_matrix(a);
+}
+
+Eigen::Matrix4f translation(float x, float y, float z) {
+	Eigen::Matrix4f m;
+	m << 1, 0, 0, x,
+		0, 1, 0, y,
+		0, 0, 1, z,
+		0, 0, 0, 1;
+
+	return m;
+}
+
+Eigen::Matrix4f scale(float x, float y, float z) {
+	Eigen::Matrix4f m;
+	m << x, 0, 0, 0,
+		0, y, 0, 0,
+		0, 0, z, 0,
+		0, 0, 0, 1;
+	
+	return m;
+}
+
+Eigen::Matrix4f rotatex(float t) {
+	Eigen::Matrix4f m;
+	float r = t * PI / 180;
+	m << 1, 0, 0, 0,
+		0, cos(r), -sin(r), 0,
+		0, sin(r), cos(r), 0,
+		0, 0, 0, 1;
+
+	return m;
+}
+
+Eigen::Matrix4f rotatey(float t) {
+	Eigen::Matrix4f m;
+	float r = t * PI / 180;
+	m << cos(r), 0, sin(r), 0,
+		0, 1, 0, 0,
+		-sin(r), 0, cos(r), 0,
+		0, 0, 0, 1;
+
+	return m;
+}
+
+Eigen::Matrix4f rotatez(float t) {
+	Eigen::Matrix4f m;
+	float r = t * PI / 180;
+	m << cos(r), -sin(r), 0, 0,
+		sin(r), cos(r), 0, 0,
+		0, 0, 1, 0,
+		0, 0, 0, 1;
+
+	return m;
 }

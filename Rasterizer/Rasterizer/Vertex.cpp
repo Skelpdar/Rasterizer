@@ -5,9 +5,5 @@ Vertex::Vertex(float x, float y, float z) {
 }
 
 void Vertex::setPos(float x, float y, float z) {
-	position.matrix.clear();
-	position.matrix.push_back(x);
-	position.matrix.push_back(y);
-	position.matrix.push_back(z);
-	position.matrix.push_back(1);
+	position << x, y, z, 1;
 }

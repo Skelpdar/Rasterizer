@@ -2,16 +2,19 @@
 #define CAMERA_H
 
 #include "Matrix.h"
+#include "Eigen/Core"
+#include "Eigen/Geometry"
+#include <cmath>
 
 class Camera {
 public:
-	Matrix position;
-	Matrix rotation;
+	Eigen::Vector4f position;
+	Eigen::Vector4f rotation;
 
-	Matrix4 getXRotationMatrix();
-	Matrix4 getYRotationMatrix();
-	Matrix4 getZRotationMatrix();
-	Matrix4 getTranslationMatrix();
+	Eigen::Matrix4f getXRotationMatrix();
+	Eigen::Matrix4f getYRotationMatrix();
+	Eigen::Matrix4f getZRotationMatrix();
+	Eigen::Matrix4f getTranslationMatrix();
 };
 
 #endif
